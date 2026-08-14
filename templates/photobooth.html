@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}photobooth · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box photobooth-shell" id="photobooth-app">
+  <h2>photobooth</h2>
+
+  <div class="photobooth-layout">
+    <div class="photobooth-camera-panel">
+      <video id="photobooth-video" autoplay playsinline muted></video>
+      <canvas id="photobooth-canvas" hidden></canvas>
+      <div class="photobooth-actions">
+        <button type="button" id="photobooth-open" class="gb-send">open camera</button>
+        <button type="button" id="photobooth-capture" class="primary-btn">capture</button>
+      </div>
+      <p class="photobooth-status" id="photobooth-status">waiting for camera</p>
+    </div>
+
+    <div class="polaroid-panel">
+      <div class="polaroid-frame" id="polaroid-preview">
+        <img id="polaroid-image" alt="Captured photobooth image" src="" />
+        <label>
+          <span>caption</span>
+          <input id="polaroid-caption" type="text" value="captured in the booth ✨" maxlength="80">
+        </label>
+      </div>
+      <div class="photobooth-actions secondary">
+        <button type="button" id="photobooth-download" class="gb-send">download</button>
+        <button type="button" id="photobooth-send" class="primary-btn">send to memory board</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

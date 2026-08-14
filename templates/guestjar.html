@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}aquarium · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box aquarium-shell">
+  <h2>Aquarium 🫧</h2>
+  <p class="muted">Drop book, movie, or essay recs here — pick a sea-animal emoji and they become a little bubble in the aquarium. Hover to see details.</p>
+
+  <div class="aquarium" id="aquarium" aria-live="polite"></div>
+
+  <form id="jar-form" class="jar-form" onsubmit="return false;">
+    <label>
+      <span>your name</span>
+      <input id="jar-name" type="text" maxlength="40" placeholder="your name">
+    </label>
+    <label>
+      <span>what is it?</span>
+      <select id="jar-type">
+        <option value="book">book</option>
+        <option value="movie">movie</option>
+        <option value="essay">essay</option>
+        <option value="other">other</option>
+      </select>
+    </label>
+    <label>
+      <span>title / link</span>
+      <input id="jar-title" type="text" maxlength="140" placeholder="Title or link">
+    </label>
+    <label>
+      <span>note</span>
+      <input id="jar-note" type="text" maxlength="200" placeholder="why you recommend it (optional)">
+    </label>
+
+    <label>
+      <span>emoji</span>
+      <select id="jar-emoji">
+        <option value="🐠">🐠 fish</option>
+        <option value="🐟">🐟 fish 2</option>
+        <option value="🐡">🐡 puffer</option>
+        <option value="🐬">🐬 dolphin</option>
+        <option value="🐙">🐙 octopus</option>
+        <option value="🦀">🦀 crab</option>
+        <option value="🐳">🐳 whale</option>
+        <option value="🐚">🐚 shell</option>
+      </select>
+    </label>
+
+    <div class="jar-actions">
+      <button id="jar-add" class="gb-send">add to aquarium</button>
+    </div>
+  </form>
+
+  <div id="jar-legend" class="jar-legend">Hover a bubble to see details.</div>
+</div>
+<script src="{{ get_url(path='js/guestjar.js') }}" defer></script>
+{% endblock main %}

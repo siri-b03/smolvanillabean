@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 160 120" role="img" aria-label="Gazebo placeholder">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fff7e6"/>
+      <stop offset="100%" stop-color="#ffe9b3"/>
+    </linearGradient>
+    <style>
+      .stroke { stroke: #6b6b6b; stroke-width: 1.5px; stroke-linecap:round; stroke-linejoin:round }
+      .roof { fill: #c94f4f }
+      .post { fill: #fff }
+      .floor { fill: url(#g1) }
+    </style>
+  </defs>
+
+  <!-- ground -->
+  <rect x="0" y="96" width="160" height="24" fill="#dfeffb"/>
+
+  <!-- gazebo floor -->
+  <ellipse cx="80" cy="92" rx="44" ry="10" class="floor" />
+
+  <!-- posts -->
+  <rect x="52" y="56" width="4" height="26" class="post stroke" />
+  <rect x="74" y="50" width="4" height="32" class="post stroke" />
+  <rect x="98" y="56" width="4" height="26" class="post stroke" />
+
+  <!-- roof -->
+  <path d="M36 56 L124 56 L80 28 Z" class="roof stroke" />
+  <path d="M44 56 L116 56" stroke="#9b2f2f" stroke-width="1.2" />
+
+  <!-- finial -->
+  <circle cx="80" cy="26" r="2.5" fill="#fff" stroke="#6b6b6b" stroke-width="0.8" />
+
+  <!-- details -->
+  <line x1="52" y1="82" x2="108" y2="82" stroke="#9aa" stroke-width="1" opacity="0.6" />
+
+</svg>

@@ -1,0 +1,27 @@
+// ---------------------------------------------------------------------------
+// tokens — Frutiger Aero inspired palette
+// ---------------------------------------------------------------------------
+:root {
+  --bg:          #eaf5ff;
+  --bg-2:        #d3e6ff;
+  --bg-3:        #b7d7ff;
+  --panel:       rgba(255, 255, 255, 0.46);
+  --panel-strong:#ffffff;
+  --glass:       rgba(255, 255, 255, 0.28);
+  --glass-strong:rgba(255, 255, 255, 0.52);
+  --line:        rgba(86, 128, 184, 0.28);
+  --line-strong: rgba(57, 92, 144, 0.34);
+  --text:        #18314f;
+  --muted:       #4d6887;
+  --accent:      #2e7de9;
+  --accent-2:    #8fe0ff;
+  --accent-3:    #9cc9ff;
+  --success:     #74b59a;
+  --warm:        #f5c7a6;
+  --shadow:      rgba(25, 48, 78, 0.14);
+  --shadow-strong: rgba(16, 35, 61, 0.22);
+}
+  
+$font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+$font-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+$font-mono:    "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", monospace;

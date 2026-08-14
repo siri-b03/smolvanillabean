@@ -1,0 +1,14 @@
+public/
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# built vendor assets
+static/vendor/
+
+# logs
+npm-debug.log*
+yarn-debug.log*

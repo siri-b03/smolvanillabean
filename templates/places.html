@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box">
+  <h2>{{ section.title }}</h2>
+  <p class="muted">A tiny globe with pins for places — hover a pin to see the short note.</p>
+
+  <div class="map-shell" style="margin-top:12px;">
+    <!-- interactive SVG map: map-content will be transformed for pan/zoom so svg and pins move together -->
+    <div class="map-content" style="width:100%; height:300px; position:relative; touch-action: none;">
+      <!-- minimal stylized world map (abstract) as the base layer -->
+      <svg viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" class="world-map" aria-hidden="true" style="width:100%; height:100%; display:block;">
+        <defs>
+          <style>
+            .sea{ fill: #eaf6ff }
+            .land{ fill: #d9f0ff; stroke: rgba(70,110,150,0.18); stroke-width:1 }
+            .grid{ fill:none; stroke: rgba(80,120,160,0.08); stroke-width:0.8 }
+          </style>
+        </defs>
+        <!-- globe circle -->
+        <rect width="100%" height="100%" fill="#f7fbff"/>
+        <g transform="translate(0,0)">
+          <g transform="translate(100,10)">
+            <circle cx="400" cy="210" r="190" fill="#eaf6ff" stroke="rgba(80,120,160,0.06)" />
+            <!-- simple meridians/parallels -->
+            <ellipse cx="400" cy="210" rx="190" ry="170" class="grid" />
+            <path class="grid" d="M400 40 C430 40 430 380 400 380" />
+            <path class="grid" d="M320 60 C350 60 350 360 320 360" />
+            <path class="grid" d="M480 60 C510 60 510 360 480 360" />
+
+            <!-- simple land shapes, illustrative only -->
+            <path class="land" d="M310 140 C330 120 370 110 400 120 C430 130 460 120 490 130 C520 140 540 170 520 190 C500 210 460 220 430 210 C400 200 360 190 330 200 C310 205 300 180 310 140 Z"/>
+            <path class="land" d="M230 260 C250 240 290 230 320 240 C340 245 350 260 340 280 C320 300 280 310 250 300 C230 295 220 275 230 260 Z"/>
+            <path class="land" d="M520 300 C540 280 580 270 610 280 C630 290 640 320 620 340 C600 360 560 370 530 360 C515 354 505 334 520 300 Z"/>
+
+          </g>
+        </g>
+      </svg>
+
+      <div class="pins" aria-hidden="false" style="position:absolute; inset:0;">
+        {% if section.extra.pins %}
+          {% for p in section.extra.pins %}
+            <button class="pin" style="position:absolute; left:{{ p.x }}%; top:{{ p.y }}%; transform:translate(-50%,-100%);" title="{{ p.label }}">{{ p.emoji | default(value='📍') }}</button>
+          {% endfor %}
+        {% else %}
+          <!-- fallback pins (example) -->
+          <button class="pin" style="position:absolute; left:30%; top:38%; transform:translate(-50%,-100%);" title="the bench by the botanical garden">📍</button>
+          <button class="pin" style="position:absolute; left:56%; top:26%; transform:translate(-50%,-100%);" title="the tiny bakery near the Marktplatz">📍</button>
+          <button class="pin" style="position:absolute; left:42%; top:62%; transform:translate(-50%,-100%);" title="riverside with good light around 6pm">📍</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- embed the pins data as a small JS array for the initializer to read -->
+    <script id="places-pins" type="application/json">
+      [
+      {% if section.extra.pins %}
+        {% for p in section.extra.pins %}
+          { "x": {{ p.x }}, "y": {{ p.y }}, "label": "{{ p.label | safe }}", "emoji": "{{ p.emoji | default(value='📍') }}", "image": {{ p.image | default(value='""') }}, "rating": {{ p.rating | default(value=0) }}, "companions": {{ p.companions | default(value='""') }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+      ]
+    </script>
+
+  </div>
+
+  <div style="margin-top:14px;">
+    {{ section.content | safe }}
+  </div>
+</div>
+
+<!-- Using an inline SVG pan/zoom implementation instead of a tile-based map (no external deps) -->
+<script src="/js/places-svg.js" defer></script>
+
+<style>
+  .world-map { width:100%; height: 300px; display:block; }
+  .map-shell { position: relative; }
+  .pins .pin { background: rgba(255,255,255,0.92); border:1px solid rgba(100,140,180,0.12); padding:6px; border-radius:10px; box-shadow: 0 8px 18px rgba(20,50,90,0.06); }
+  .pins .pin:hover { transform: translate(-50%,-110%) scale(1.06); box-shadow: 0 10px 22px rgba(20,50,90,0.12); }
+  /* hide decorative SVG when Leaflet is active */
+  .map-shell.leaflet-enabled .world-map { display: none; }
+  .map-shell.leaflet-enabled #leaflet-map { display: block; }
+</style>
+
+{% endblock main %}

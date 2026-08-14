@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="box" id="welcome">
+  <h2>hihi, welcome!!</h2>
+  {{ section.content | safe }}
+</div>
+
+{% set now_page = get_section(path="now/_index.md") %}
+<div class="box" id="now">
+  <h2>now — {{ now_page.extra.month }}</h2>
+  {{ now_page.content | safe }}
+</div>
+
+<div class="divider">✿ ⋆ ✿ ⋆ ✿ ⋆ ✿</div>
+
+<h2 style="text-align:center;">the memory board <span style="font-size:14px;">(pinned this week)</span></h2>
+<div class="corkboard" id="board">
+  {% set memory_board = get_section(path="memory-board/_index.md") %}
+  {% for n in memory_board.extra.notes %}
+    {% if loop.index <= 4 %}
+    <div class="note{% if n.style %} note-{{ n.style }}{% endif %}" style="transform: rotate({{ n.rotate | default(value=0) }}deg);">
+      <span class="tape"></span>
+      <strong>{{ n.label }}</strong>{{ n.text }}
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% set journal = get_section(path="journal/_index.md", metadata_only=true) %}
+<div class="box" id="journal-preview">
+  <h2>update log</h2>
+  {% for p in journal.pages %}
+    {% if loop.index <= 5 %}
+    <div class="log-entry">
+      <span class="log-date">{{ p.date | date(format="%d.%m.%y") }}</span>
+      <a href="{{ p.permalink }}">{{ p.title }}</a>
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endblock main %}

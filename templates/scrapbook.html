@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}memory board · {{ config.title }}{% endblock title %}
+
+{% block main %}
+
+<h2 style="text-align:center;">the memory board <span style="font-size:14px;">(everything, unsorted)</span></h2>
+
+<div class="corkboard-tools">
+  <form class="corkboard-form" id="corkboard-form">
+    <label>
+      <span>name</span>
+      <input id="note-label" type="text" maxlength="24" value="you" aria-label="Note name">
+    </label>
+    <label>
+      <span>message</span>
+      <textarea id="note-text" maxlength="200" placeholder="leave a note for the board"></textarea>
+    </label>
+    <label>
+      <span>photo</span>
+      <input id="note-image" type="file" accept="image/*">
+    </label>
+    <button type="submit" class="gb-send">pin to the board</button>
+  </form>
+</div>
+
+<div class="corkboard" id="board" data-storage-key="smolvanillabean-memory-board">
+  {% for n in section.extra.notes %}
+    <div class="note{% if n.style %} note-{{ n.style }}{% endif %}"
+         data-label="{{ n.label }}"
+         data-text="{{ n.text | striptags }}"
+         data-style="{{ n.style | default(value='sky') }}"
+         data-rotate="{{ n.rotate | default(value=0) }}"
+         style="transform: rotate({{ n.rotate | default(value=0) }}deg);">
+      <span class="tape"></span>
+      <strong>{{ n.label }}</strong>{{ n.text }}
+    </div>
+  {% endfor %}
+</div>
+{% if section.content %}
+<div class="box">{{ section.content | safe }}</div>
+{% endif %}
+{% endblock main %}

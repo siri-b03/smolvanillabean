@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box">
+  <h2>{{ section.title }}</h2>
+  {{ section.content | safe }}
+</div>
+
+{# links/ can list an extra.buttons array for the pixel-button row #}
+{% if section.extra.buttons %}
+<div class="box">
+  <div class="buttonrow">
+    {% for b in section.extra.buttons %}
+    <a class="pxbtn" href="{{ b.url }}">{{ b.label }}</a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# guestbook/ opts into the decorative form #}
+{% if section.extra.guestbook %}
+<div class="atabook-window" aria-label="Atari Book guestbook window">
+  <div class="atabook-titlebar">
+    <div class="atabook-dots">
+      <span class="dot red"></span>
+      <span class="dot amber"></span>
+      <span class="dot green"></span>
+    </div>
+    <div class="atabook-title">atabook // g3kko</div>
+    <div class="atabook-status">online</div>
+  </div>
+
+  <div class="atabook-toolbar">
+    <span>guestbook</span>
+    <span>♥ leave a message</span>
+  </div>
+
+  <div class="atabook-body">
+    <div class="atabook-entries">
+      <div class="entry"><span class="name">carl</span><span class="time">nov 28, 2025</span><p>reply if you're okay</p></div>
+      <div class="entry"><span class="name">carl</span><span class="time">nov 28, 2025</span><p>still alive?</p></div>
+      <div class="entry"><span class="name">millenniumP</span><span class="time">oct 7, 2025</span><p>![:cheers:]</p></div>
+      <div class="entry"><span class="name">kei</span><span class="time">apr 27, 2025</span><p>adorable v</p></div>
+    </div>
+
+    <form class="atabook-form" onsubmit="return false;">
+      <label>
+        <span>name</span>
+        <input type="text" value="you" aria-label="Your name">
+      </label>
+      <label>
+        <span>message</span>
+        <textarea aria-label="Guestbook message" placeholder="say hi!"></textarea>
+      </label>
+      <button type="submit" class="gb-send">sign the book</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock main %}

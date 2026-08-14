@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} · journal · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box" id="entry">
+  <h2>{{ page.title }}</h2>
+  <div class="log-date" style="display:block; margin-bottom:10px;">{{ page.date | date(format="%d.%m.%Y") }}</div>
+  {{ page.content | safe }}
+  <p><a href="/journal/">&larr; back to journal</a></p>
+</div>
+{% endblock main %}

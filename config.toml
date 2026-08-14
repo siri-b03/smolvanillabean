@@ -1,0 +1,56 @@
+base_url = "https://smolvanillabean.example"
+title = "smolvanillabean"
+description = "a tiny handmade corner of the internet"
+
+compile_sass = true
+minify_html = false
+build_search_index = false
+generate_feeds = true
+
+
+# ---------------------------------------------------------------------------
+# Everything below is "site data" rather than markup. Add a page to the site
+# by adding one line here + one content file — no template edits needed.
+# ---------------------------------------------------------------------------
+[extra]
+author = "smolvanillabean"
+tagline = "a tiny corner of the internet"
+marquee = "welcome to my corner of the internet ✿ currently: warm, buttery, and slightly overcaffeinated ✿ pardon the mess, still decorating ✿ est. summer 2026, Karlsruhe ✿ come back soon !!"
+
+nav = [
+  { title = "home", url = "/", icon = "🍦" },
+  { title = "now", url = "/now/", icon = "🌱" },
+  { title = "journal", url = "/journal/", icon = "📓" },
+  { title = "memory board", url = "/memory-board/", icon = "🗂️", new = true },
+  { title = "photobooth", url = "/photobooth/", icon = "📷" },
+  { title = "recipes", url = "/recipes/", icon = "🍞" },
+  { title = "places", url = "/places/", icon = "🗺️" },
+  { title = "links", url = "/links/", icon = "🔗" },
+  { title = "aquarium", url = "/guestbook/", icon = "🫧" },
+  { title = "sessions", url = "/sessions/", icon = "🎙️" },
+]
+
+# ---------------------------------------------------------------------------
+# /sessions/ — the vlog & podcast archive, gated behind a shared passphrase.
+# See README "about the sessions gate" before relying on this for anything
+# actually sensitive — it deters casual visitors, it does not secure content.
+#
+# Regenerate the hash when you change the passphrase:
+#   printf '%s' "your-new-passphrase" | shasum -a 256
+# (or run the equivalent in Node/Python — any sha256 of the exact UTF-8 string)
+# ---------------------------------------------------------------------------
+sessions_passphrase_hash = "70aff7249a13ffc23744199da5bda2f28cd28ed43a0342eec14b9ecae389b63b" # "vanilla-and-friends" — CHANGE THIS
+
+# shown in the sidebar "currently" box — edit whenever
+status = [
+  { label = "mood", value = "✿ soft" },
+  { label = "weather", value = "☁ 21°C" },
+  { label = "listening", value = "lo-fi rain" },
+  { label = "drinking", value = "vanilla oat latte" },
+]
+
+footer_badges = [
+  "best viewed with a cup of tea",
+  "made with zola + love",
+  "est. 2026",
+]

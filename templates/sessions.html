@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}sessions · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="sessions-page" data-hash="{{ config.extra.sessions_passphrase_hash }}">
+
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <h2>🔒 private sessions</h2>
+      <p>{{ section.content | safe }}</p>
+      <input type="password" id="gate-input" placeholder="passphrase" autocomplete="off">
+      <button id="gate-submit">unlock</button>
+      <p class="gate-error" id="gate-error" hidden>hmm, that's not it.</p>
+    </div>
+  </div>
+
+  <div class="episodes" id="episodes" hidden>
+    <div class="episodes-header">
+      <h2>sessions</h2>
+      <p>vlogs & podcast episodes, just for us.</p>
+    </div>
+    <div class="episode-grid" id="episode-grid"></div>
+  </div>
+
+</div>
+{% endblock main %}

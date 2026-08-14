@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}journal · {{ config.title }}{% endblock title %}
+
+{% block main %}
+<div class="box" id="journal">
+  <h2>journal</h2>
+  {% if section.content %}{{ section.content | safe }}{% endif %}
+  {% for p in section.pages %}
+  <div class="log-entry">
+    <span class="log-date">{{ p.date | date(format="%d.%m.%y") }}</span>
+    <a href="{{ p.permalink }}">{{ p.title }}</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock main %}

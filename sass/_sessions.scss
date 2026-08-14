@@ -1,0 +1,103 @@
+// ---------------------------------------------------------------------------
+// /sessions/ intentionally breaks from the scrapbook look — clean, neutral,
+// system-font, like a private little media app rather than a diary page.
+// Scoped entirely under .sessions-page so nothing else on the site is touched.
+// ---------------------------------------------------------------------------
+.sessions-page {
+  --s-bg: #F5F5F7;
+  --s-card: #FFFFFF;
+  --s-border: #E2E2E5;
+  --s-text: #1D1D1F;
+  --s-muted: #6E6E73;
+  --s-accent: #0071E3;
+
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  background: var(--s-bg);
+  color: var(--s-text);
+  border-radius: 16px;
+  padding: 8px;
+}
+
+.gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 20px;
+}
+
+.gate-card {
+  background: var(--s-card);
+  border: 1px solid var(--s-border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .04);
+
+  h2 { font-size: 19px; margin: 0 0 6px; letter-spacing: 0; }
+  p { color: var(--s-muted); font-size: 14px; margin: 0 0 16px; }
+}
+
+#gate-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--s-border);
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-family: inherit;
+
+  &:focus { outline: 2px solid var(--s-accent); outline-offset: 1px; }
+}
+
+#gate-submit {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--s-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: #0060c2; }
+}
+
+.gate-error { color: #D0344C; font-size: 13px; margin-top: 10px; }
+
+.episodes { padding: 16px 8px 8px; }
+
+.episodes-header {
+  h2 { font-size: 22px; margin: 0 0 2px; }
+  p { color: var(--s-muted); font-size: 14px; margin: 0 0 20px; }
+}
+
+.episode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.episode-card {
+  background: var(--s-card);
+  border: 1px solid var(--s-border);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform .15s ease, box-shadow .15s ease;
+
+  &:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, .08); }
+
+  h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+}
+
+.episode-thumb { font-size: 34px; margin-bottom: 10px; }
+.episode-meta { color: var(--s-muted); font-size: 12px; margin-bottom: 8px; }
+.episode-desc { font-size: 13px; color: var(--s-muted); margin-bottom: 12px; }
+
+.episode-card {
+  audio, video { width: 100%; border-radius: 8px; }
+  iframe { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 8px; }
+}

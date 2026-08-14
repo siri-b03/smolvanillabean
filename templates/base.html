@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+  <meta name="description" content="{{ config.description }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Gaegu:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ get_url(path='style.css') }}">
+</head>
+<body>
+
+
+<div class="wrap">
+
+<div class="desktop-apps">
+  {% for item in config.extra.nav %}
+  <a class="app-icon{% if item.url == current_path | default(value="/") %} active{% endif %}" href="{{ item.url }}" title="{{ item.title }}">
+    <span class="app-emoji">{{ item.icon }}</span>
+    {% if item.new %}<span class="new-tag">NEW</span>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="desktop-title" aria-label="smolvanillabean">
+  <span>smolvanillabean</span>
+</div>
+<div class="title-meta">a tiny corner of the internet</div>
+<div class="stars-row">✦ ✧ ✦ ✧ ✦ ✧ ✦</div>
+
+<div class="layout">
+  <div class="main">
+    {% block main %}{% endblock main %}
+  </div>
+</div>
+
+  <footer>
+    {% if current_path | default(value="/") == "/memory-board/" %}
+    visitors so far:
+    <span class="counter"><span>0</span><span>0</span><span>4</span><span>2</span><span>1</span></span>
+    <br><br>
+    {% endif %}
+    {% for badge in config.extra.footer_badges %}<span class="badge">{{ badge }}</span>{% endfor %}
+    <br><br>
+    {{ config.title }}'s corner · © {{ now() | date(format="%Y") }} · ETERNITY ✿
+  </footer>
+
+</div>
+
+<script src="{{ get_url(path='js/main.js') }}" defer></script>
+<script src="{{ get_url(path='js/sessions.js') }}" defer></script>
+</body>
+</html>
