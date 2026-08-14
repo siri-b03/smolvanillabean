@@ -10,14 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # install Zola using the official setup action (uses prebuilt binary)
-      - name: Setup Zola
-        uses: getzola/setup-zola@v1
-        with:
-          zola-version: '0.19.2'
+      # Install Zola by downloading the official binary to avoid occasional setup-action failures
+      - name: Install Zola
+        run: |
+          set -eux
+          ZOLA_VER=0.19.2
+          curl -fsSL https://github.com/getzola/zola/releases/download/v${ZOLA_VER}/zola-v${ZOLA_VER}-x86_64-unknown-linux-gnu.tar.gz -o zola.tar.gz
+          tar xzf zola.tar.gz
+          sudo mv zola /usr/local/bin/zola
+          zola --version
 
       - name: Build site
-        run: zola build
+        run: |
+          set -eux
+          zola build
+          echo "Built public directory contents:"
+          ls -la public || true
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
