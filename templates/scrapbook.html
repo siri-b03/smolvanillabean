@@ -31,7 +31,7 @@
          data-text="{{ n.text | striptags }}"
          data-style="{{ n.style | default(value='sky') }}"
          data-rotate="{{ n.rotate | default(value=0) }}"
-         style="transform: rotate({{ n.rotate | default(value=0) }}deg);">
+         style="--note-rotate: {{ n.rotate | default(value=0) }}deg; transform: rotate(var(--note-rotate));">
       <span class="tape"></span>
       <strong>{{ n.label }}</strong>{{ n.text }}
     </div>
