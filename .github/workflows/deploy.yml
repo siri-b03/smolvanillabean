@@ -1,34 +1,53 @@
-name: Build and deploy Zola site to GitHub Pages
+name: Deploy Zola site to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      # Install Zola by downloading the official binary to avoid occasional setup-action failures
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Install Zola
-        run: |
-          set -eux
-          ZOLA_VER=0.19.2
-          curl -fsSL https://github.com/getzola/zola/releases/download/v${ZOLA_VER}/zola-v${ZOLA_VER}-x86_64-unknown-linux-gnu.tar.gz -o zola.tar.gz
-          tar xzf zola.tar.gz
-          sudo mv zola /usr/local/bin/zola
-          zola --version
-
-      - name: Build site
-        run: |
-          set -eux
-          zola build
-          echo "Built public directory contents:"
-          ls -la public || true
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: taiki-e/install-action@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          tool: zola@0.21.0
+
+      - name: Build with Zola
+        run: zola build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
