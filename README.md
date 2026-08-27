@@ -85,4 +85,24 @@ Paste the resulting hash into `sessions_passphrase_hash` in `config.toml`.
 
 ## Deploying
 
-Push to GitHub, then connect the repo to Cloudflare Pages or Netlify with build command `zola build` and output directory `public`. No other config needed.
+The site is configured for Cloudflare Pages at `https://smolvanillabean.pages.dev`. The repository is ready for either of these launch paths:
+
+**Cloudflare dashboard (recommended):**
+1. Create a Pages project from the `siri-b03/smolvanillabean` GitHub repository.
+2. Set the build command to:
+
+```sh
+curl -fsSL https://github.com/getzola/zola/releases/download/v0.23.3/zola-v0.23.3-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C /tmp && /tmp/zola build
+```
+
+3. Set the output directory to `public`.
+4. Leave the deploy command empty. Git-connected Pages deploys the `public` output automatically after the build succeeds.
+5. Deploy, then confirm the project domain matches `base_url` in `config.toml`.
+
+**Cloudflare CLI alternative:** use this only if you are deploying manually outside the Git-connected Pages build:
+
+```sh
+zola build && npx wrangler pages deploy public --project-name smolvanillabean
+```
+
+`wrangler.toml` supplies the project name and output directory. The aquarium currently stores visitor recommendations in each visitor's browser; a shared database is a later feature, not a launch prerequisite.
