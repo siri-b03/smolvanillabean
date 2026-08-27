@@ -238,6 +238,13 @@
     color: var(--text);
   }
 
+  .note-timestamp {
+    font-family: $font-mono;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
   p {
     margin: 8px 0 0;
     line-height: 1.4;

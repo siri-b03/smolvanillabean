@@ -1,3 +1,8 @@
 name = "smolvanillabean"
 compatibility_date = "2026-08-27"
 pages_build_output_dir = "./public"
+
+[[d1_databases]]
+binding = "smolvanillabean_db"
+database_name = "smolvanillabean-db"
+database_id = "b0567294-45b6-4bbb-bff1-f44da67281c2"

@@ -85,11 +85,14 @@
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (Array.isArray(saved) && saved.length) {
         return saved.map((item) => ({
-          label: String(item.label || "you"),
+          label: item.label === "polaroid" && item.image
+            ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(Number(item.createdAt || Date.now()))
+            : String(item.label || "you"),
           text: String(item.text || ""),
           style: String(item.style || "sky"),
           rotate: Number.parseFloat(item.rotate || "0") || 0,
           image: String(item.image || ""),
+          source: String(item.source || (item.label === "polaroid" && item.image ? "photobooth" : "")),
           createdAt: Number(item.createdAt || Date.now())
         }));
       }
@@ -121,6 +124,7 @@
 
       const title = document.createElement("strong");
       title.textContent = note.label || "you";
+      if (note.source === "photobooth") title.className = "note-timestamp";
       item.appendChild(title);
 
       if (note.image) {
@@ -246,13 +250,18 @@
     try {
       const existing = JSON.parse(localStorage.getItem(memoryKey) || "null");
       const notes = Array.isArray(existing) ? existing : [];
+      const capturedAt = Date.now();
       notes.unshift({
-        label: "polaroid",
+        label: new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(capturedAt),
         text: (captionInput && captionInput.value.trim()) || "captured in the booth ✨",
         image: currentDataUrl,
         style: "sky",
         rotate: (Math.random() * 7 - 3).toFixed(1),
-        createdAt: Date.now()
+        source: "photobooth",
+        createdAt: capturedAt
       });
       localStorage.setItem(memoryKey, JSON.stringify(notes.slice(0, 20)));
       setStatus("sent to the memory board");

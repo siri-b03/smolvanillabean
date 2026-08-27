@@ -283,6 +283,56 @@
 .aq-emoji { font-size: 22px; line-height: 1; }
 .aq-label { display: none; }
 
+// ---------- places map ----------
+.places-map {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  margin: 18px 0 16px;
+  overflow: hidden;
+  border: 1px solid rgba(68, 126, 155, 0.28);
+  border-radius: 14px;
+  background: #dff4f0;
+  box-shadow: inset 0 0 0 6px rgba(255,255,255,0.18), 0 10px 24px rgba(26, 70, 84, 0.08);
+}
+
+.places-map-art { display: block; width: 100%; height: 100%; }
+.map-ocean { fill: #dff4f0; }
+.map-grid { fill: none; stroke: rgba(70, 133, 148, 0.18); stroke-width: 1; stroke-dasharray: 3 7; }
+.map-land { fill: #f7d6a6; stroke: rgba(154, 105, 65, 0.28); stroke-width: 2; stroke-linejoin: round; }
+
+.places-pins { position: absolute; inset: 0; }
+.place-pin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(24, 49, 79, 0.25);
+  transform: translate(-50%, -75%) rotate(-45deg);
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+
+.place-pin span { display: block; transform: rotate(45deg); font-size: 14px; line-height: 26px; }
+.place-pin:hover, .place-pin:focus-visible { background: #e98562; transform: translate(-50%, -75%) rotate(-45deg) scale(1.15); }
+
+.places-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.place-card { padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.35); }
+.place-card-heading { display: flex; align-items: flex-start; gap: 8px; }
+.place-card h3 { margin: 1px 0 0; font-size: 15px; line-height: 1.2; }
+.place-card-emoji { font-size: 18px; line-height: 1; }
+.place-card .muted { margin: 7px 0 0; font-size: 13px; }
+.place-rating { display: inline-block; margin-top: 8px; color: #9a613d; font-family: $font-mono; font-size: 13px; }
+.places-note { margin-top: 16px; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .places-list { grid-template-columns: 1fr; }
+  .places-map { margin-top: 14px; }
+}
+
 .aquarium-item.swim { animation: fish-swim-x 6s ease-in-out infinite, fish-swim-y 9s ease-in-out infinite; }
 
 .aquarium-item-detail {
