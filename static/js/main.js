@@ -53,8 +53,8 @@
     latestEvent = null;
   }
 
-  document.addEventListener("pointermove", (e) => {
-    latestEvent = e;
+  document.addEventListener("pointermove", (event) => {
+    latestEvent = event;
     if (rafId !== null) return;
     rafId = requestAnimationFrame(flush);
   });
@@ -80,7 +80,11 @@
     createdAt: Date.now() + Math.random()
   }));
 
-  function readNotes() {
+  function canUseRemoteStorage() {
+    return Boolean(window.SiteSupabase && window.SiteSupabase.configured);
+  }
+
+  function readLocalNotes() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (Array.isArray(saved) && saved.length) {
@@ -96,21 +100,46 @@
           createdAt: Number(item.createdAt || Date.now())
         }));
       }
-    } catch (e) {
+    } catch (error) {
+      console.warn("Could not read local memory board.", error);
     }
 
     return defaultNotes;
   }
 
-  function writeNotes(notes) {
+  function writeLocalNotes(notes) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(notes));
-    } catch (e) {
+    } catch (error) {
+      console.warn("Could not save memory board locally.", error);
     }
   }
 
-  function renderNotes() {
-    const notes = readNotes();
+  async function readNotes() {
+    if (canUseRemoteStorage()) {
+      try {
+        const rows = await window.SiteSupabase.listMemories();
+        if (rows.length) {
+          return rows.map((item) => ({
+            label: item.label || "you",
+            text: item.text || "",
+            style: item.style || "sky",
+            rotate: Number(item.rotate || 0),
+            image: item.image || "",
+            source: item.source || "board",
+            createdAt: item.createdAt || Date.now()
+          }));
+        }
+      } catch (error) {
+        console.warn("Could not load memory board from Supabase; using local data.", error);
+      }
+    }
+
+    return readLocalNotes();
+  }
+
+  async function renderNotes() {
+    const notes = await readNotes();
     board.innerHTML = "";
 
     notes.forEach((note) => {
@@ -145,22 +174,46 @@
     });
   }
 
-  function addNote(label, text, image) {
-    const notes = readNotes();
-    notes.unshift({
+  async function addNote(label, text, image) {
+    const item = {
       label: label || "you",
       text: text || "",
       image: image || "",
       style: ["sky", "peach", "pink"][Math.floor(Math.random() * 3)],
       rotate: (Math.random() * 8 - 4).toFixed(1),
       createdAt: Date.now()
-    });
-    writeNotes(notes.slice(0, 20));
-    renderNotes();
+    };
+
+    if (canUseRemoteStorage()) {
+      try {
+        let imagePath = null;
+        if (item.image && item.image.startsWith("data:")) {
+          const blob = await (await fetch(item.image)).blob();
+          imagePath = await window.SiteSupabase.uploadImage(blob);
+        }
+
+        await window.SiteSupabase.submitMemory({
+          label: item.label,
+          text: item.text,
+          imagePath,
+          source: "board",
+          style: item.style,
+          rotate: Number(item.rotate)
+        });
+        return;
+      } catch (error) {
+        console.warn("Supabase memory upload failed; falling back to local storage.", error);
+      }
+    }
+
+    const notes = readLocalNotes();
+    notes.unshift(item);
+    writeLocalNotes(notes.slice(0, 20));
+    await renderNotes();
   }
 
   if (noteForm) {
-    noteForm.addEventListener("submit", (event) => {
+    noteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const label = labelInput.value.trim() || "you";
       const text = textInput.value.trim();
@@ -173,16 +226,18 @@
 
       if (file) {
         const reader = new FileReader();
-        reader.onload = () => {
-          addNote(label, text, String(reader.result));
+        reader.onload = async () => {
+          await addNote(label, text, String(reader.result));
           noteForm.reset();
+          await renderNotes();
         };
         reader.readAsDataURL(file);
         return;
       }
 
-      addNote(label, text, "");
+      await addNote(label, text, "");
       noteForm.reset();
+      await renderNotes();
     });
   }
 
@@ -244,25 +299,46 @@
     setStatus("photo ready");
   }
 
-  function saveImageToMemoryBoard() {
+  async function saveImageToMemoryBoard() {
     if (!currentDataUrl) return;
+
+    const capturedAt = Date.now();
+    const entry = {
+      label: new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(capturedAt),
+      text: (captionInput && captionInput.value.trim()) || "captured in the booth ✨",
+      image: currentDataUrl,
+      style: "sky",
+      rotate: (Math.random() * 7 - 3).toFixed(1),
+      source: "photobooth",
+      createdAt: capturedAt
+    };
+
+    if (window.SiteSupabase && window.SiteSupabase.configured) {
+      try {
+        const blob = await (await fetch(currentDataUrl)).blob();
+        const imagePath = await window.SiteSupabase.uploadImage(blob);
+        await window.SiteSupabase.submitMemory({
+          label: entry.label,
+          text: entry.text,
+          imagePath,
+          source: "photobooth",
+          style: entry.style,
+          rotate: Number(entry.rotate)
+        });
+        setStatus("sent to the memory board");
+        return;
+      } catch (error) {
+        console.warn("Photobooth upload failed; falling back to local storage.", error);
+      }
+    }
 
     try {
       const existing = JSON.parse(localStorage.getItem(memoryKey) || "null");
       const notes = Array.isArray(existing) ? existing : [];
-      const capturedAt = Date.now();
-      notes.unshift({
-        label: new Intl.DateTimeFormat(undefined, {
-          dateStyle: "medium",
-          timeStyle: "short"
-        }).format(capturedAt),
-        text: (captionInput && captionInput.value.trim()) || "captured in the booth ✨",
-        image: currentDataUrl,
-        style: "sky",
-        rotate: (Math.random() * 7 - 3).toFixed(1),
-        source: "photobooth",
-        createdAt: capturedAt
-      });
+      notes.unshift(entry);
       localStorage.setItem(memoryKey, JSON.stringify(notes.slice(0, 20)));
       setStatus("sent to the memory board");
     } catch (error) {

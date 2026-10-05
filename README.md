@@ -106,3 +106,28 @@ zola build && npx wrangler pages deploy public --project-name smolvanillabean
 ```
 
 `wrangler.toml` supplies the project name and output directory. The aquarium currently stores visitor recommendations in each visitor's browser; a shared database is a later feature, not a launch prerequisite.
+
+## Supabase setup for shared submissions
+
+Use Supabase if you want the aquarium and memory board to share submissions across visitors instead of staying in each browser.
+
+1. Create a Supabase project and copy the project URL and anon key.
+2. In [static/js/supabase-config.js](static/js/supabase-config.js), replace the placeholder values with your real URL and anon key.
+3. Create the `memory-images` storage bucket in Supabase and make it public.
+4. Run the SQL from [supabase/schema.sql](supabase/schema.sql) in the Supabase SQL editor.
+
+The schema creates:
+- `public.recommendations` for aquarium submissions
+- `public.memories` for corkboard and photobooth submissions
+- a public storage bucket policy for `memory-images`
+
+Example config:
+
+```js
+window.SUPABASE_CONFIG = {
+  url: "https://xyzcompany.supabase.co",
+  anonKey: "your-anon-key"
+};
+```
+
+If the config is blank, the site keeps the current localStorage behavior so the site still works without a backend.

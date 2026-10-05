@@ -6,13 +6,17 @@
   const titleInput = document.getElementById('jar-title');
   const noteInput = document.getElementById('jar-note');
   const emojiSelect = document.getElementById('jar-emoji');
-  const addBtn = document.getElementById('jar-add');
+  const legend = document.getElementById('jar-legend');
 
   if (!aquarium || !form) return;
 
   const KEY = 'smolvanillabean-jar';
 
-  function readItems() {
+  function setLegend(message) {
+    if (legend) legend.textContent = message;
+  }
+
+  function readLocalItems() {
     try {
       const raw = localStorage.getItem(KEY);
       if (!raw) return [];
@@ -21,8 +25,30 @@
     } catch (e) { return []; }
   }
 
-  function writeItems(items) {
+  function writeLocalItems(items) {
     try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  async function readItems() {
+    if (window.SiteSupabase && window.SiteSupabase.configured) {
+      try {
+        const rows = await window.SiteSupabase.listRecommendations();
+        if (rows.length) {
+          return rows.map((item) => ({
+            name: item.name || 'friend',
+            type: item.type || 'other',
+            title: item.title || 'recommendation',
+            note: item.note || '',
+            emoji: item.emoji || '🐠',
+            createdAt: item.createdAt || Date.now()
+          }));
+        }
+      } catch (error) {
+        console.warn('Could not load aquarium from Supabase; falling back to local storage.', error);
+      }
+    }
+
+    return readLocalItems();
   }
 
   function makeItemElement(item, idx) {
@@ -32,7 +58,6 @@
     el.dataset.idx = String(idx);
     el.setAttribute('aria-label', `${item.type} recommendation by ${item.name}: ${item.title}`);
 
-    // random start position (within aquarium bounds)
     const w = aquarium.clientWidth;
     const h = aquarium.clientHeight;
     const x = Math.max(8, Math.floor(Math.random() * (w - 80)));
@@ -44,7 +69,6 @@
     emoji.className = 'aq-emoji';
     emoji.textContent = item.emoji || '🐠';
     emoji.style.fontSize = '22px';
-    // start with a neutral (unflipped) orientation; facing will be set when movement begins
     emoji.style.transform = 'scaleX(1)';
     emoji.setAttribute('aria-hidden', 'true');
 
@@ -56,33 +80,23 @@
     el.appendChild(emoji);
     el.appendChild(label);
 
-    // hover shows details (mouseenter/leave) and focus for keyboard
     let detailEl = null;
     function show() { detailEl = showDetail(item, el); }
     function hide() { if (detailEl) { detailEl.remove(); detailEl = null; } }
 
-    el.addEventListener('mouseenter', (e) => { show(); });
-    el.addEventListener('focus', (e) => { show(); });
-    el.addEventListener('mouseleave', (e) => { hide(); });
-    el.addEventListener('blur', (e) => { hide(); });
-
-    // also support click on touch devices to toggle
-    el.addEventListener('click', (e) => { e.stopPropagation(); if (!detailEl) show(); else hide(); });
+    el.addEventListener('mouseenter', () => show());
+    el.addEventListener('focus', () => show());
+    el.addEventListener('mouseleave', () => hide());
+    el.addEventListener('blur', () => hide());
+    el.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (!detailEl) show(); else hide();
+    });
 
     return el;
   }
 
-  function render() {
-    aquarium.innerHTML = '';
-    const items = readItems();
-    items.forEach((it, i) => {
-      const itemEl = makeItemElement(it, i);
-      aquarium.appendChild(itemEl);
-    });
-  }
-
   function showDetail(item, anchorEl) {
-    // remove existing detail
     const existing = document.querySelector('.aquarium-item-detail');
     if (existing) existing.remove();
 
@@ -100,7 +114,6 @@
     detail.appendChild(by);
     if (item.note) detail.appendChild(note);
 
-    // position near anchor
     const rect = anchorEl.getBoundingClientRect();
     const contRect = aquarium.getBoundingClientRect();
     const left = Math.min(contRect.width - 320, rect.left - contRect.left + 10);
@@ -113,33 +126,69 @@
     return detail;
   }
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+  async function render() {
+    aquarium.innerHTML = '';
+    setLegend('Loading recommendations…');
+
+    const items = await readItems();
+    if (!items.length) {
+      setLegend(window.SiteSupabase && window.SiteSupabase.configured
+        ? 'No recommendations yet — be the first to add one.'
+        : 'No recommendations saved in this browser yet.');
+    } else {
+      setLegend(`${items.length} recommendation${items.length === 1 ? '' : 's'} in the aquarium`);
+    }
+
+    items.forEach((item, i) => {
+      const itemEl = makeItemElement(item, i);
+      aquarium.appendChild(itemEl);
+    });
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
     const name = (nameInput.value || '').trim() || 'friend';
-    const type = (typeInput.value || 'other');
+    const type = typeInput.value || 'other';
     const title = (titleInput.value || '').trim();
     const note = (noteInput.value || '').trim();
     const emoji = (emojiSelect && emojiSelect.value) || '🫧';
+
     if (!title && !note) {
       titleInput.focus();
       return;
     }
-    const items = readItems();
-    items.unshift({ name, type, title, note, emoji, createdAt: Date.now() });
-    writeItems(items.slice(0, 60));
-    render();
+
+    const payload = { name, type, title, note, emoji };
+
+    if (window.SiteSupabase && window.SiteSupabase.configured) {
+      try {
+        await window.SiteSupabase.submitRecommendation(payload);
+        setLegend('Sent to the aquarium for review.');
+      } catch (error) {
+        console.warn('Supabase submit failed; saving locally instead.', error);
+        const items = readLocalItems();
+        items.unshift({ ...payload, createdAt: Date.now() });
+        writeLocalItems(items.slice(0, 60));
+        setLegend('Saved locally for now.');
+      }
+    } else {
+      const items = readLocalItems();
+      items.unshift({ ...payload, createdAt: Date.now() });
+      writeLocalItems(items.slice(0, 60));
+      setLegend('Saved locally in this browser.');
+    }
+
     form.reset();
     nameInput.value = '';
+    await render();
   });
 
-  // per-item continuous wandering
   function attachWander(el) {
     let stopped = false;
     function step() {
       if (stopped) return;
       const contRect = aquarium.getBoundingClientRect();
       const w = contRect.width;
-      const h = contRect.height;
 
       const elRect = el.getBoundingClientRect();
       const currentX = elRect.left - contRect.left;
@@ -147,12 +196,10 @@
 
       const elW = el.offsetWidth || 40;
       const elH = el.offsetHeight || 30;
-
-      // keep items fully inside the aquarium (account for element size)
       const minX = 6;
       const maxX = Math.max(minX, Math.floor(w - elW - 6));
       const minY = 6;
-      const maxY = Math.max(minY, Math.floor(h - elH - 6));
+      const maxY = Math.max(minY, Math.floor(contRect.height - elH - 6));
 
       const nx = Math.min(maxX, Math.max(minX, Math.floor(minX + Math.random() * (maxX - minX + 1))));
       const ny = Math.min(maxY, Math.max(minY, Math.floor(minY + Math.random() * (maxY - minY + 1))));
@@ -160,32 +207,22 @@
       const dx = nx - currentX;
       const dy = ny - currentY;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const speed = 80; // pixels per second
+      const speed = 80;
       const duration = Math.min(8, Math.max(0.9, distance / speed));
 
       const emoji = el.querySelector('.aq-emoji');
-      if (emoji) {
-        // face the direction of travel based on dx
-        if (Math.abs(dx) > 4) {
-          // invert mapping so emoji visually face the movement direction
-          emoji.style.transform = dx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
-        }
+      if (emoji && Math.abs(dx) > 4) {
+        emoji.style.transform = dx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
       }
 
-      // set transition and move
       el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
-
-      // set positions relative to the container (left/top)
-      // convert nx/ny (which are relative to container) into px values
       requestAnimationFrame(() => {
         el.style.left = nx + 'px';
         el.style.top = ny + 'px';
       });
 
-      // wait for the transition to end (once) then schedule next step
-      el.addEventListener('transitionend', function onEnd(e) {
-        if (e.propertyName !== 'left' && e.propertyName !== 'top') return;
-        // schedule next wander after a short randomized delay
+      el.addEventListener('transitionend', function onEnd(event) {
+        if (event.propertyName !== 'left' && event.propertyName !== 'top') return;
         setTimeout(step, 200 + Math.random() * 800);
       }, { once: true });
     }
@@ -193,20 +230,18 @@
     el._stopWander = () => { stopped = true; el.style.transition = ''; };
   }
 
-  function render() {
-    // stop existing wanderers
+  async function renderWanderingItems() {
     const existing = aquarium.querySelectorAll('.aquarium-item');
-    existing.forEach((it) => { try { if (it._stopWander) it._stopWander(); } catch (e) {} });
+    existing.forEach((item) => { try { if (item._stopWander) item._stopWander(); } catch (error) {} });
 
     aquarium.innerHTML = '';
-    const items = readItems();
-    items.forEach((it, i) => {
-      const itemEl = makeItemElement(it, i);
+    const items = await readItems();
+    items.forEach((item, i) => {
+      const itemEl = makeItemElement(item, i);
       aquarium.appendChild(itemEl);
       attachWander(itemEl);
     });
   }
 
-  // initial render
-  render();
+  renderWanderingItems();
 })();
