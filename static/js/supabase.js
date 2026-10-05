@@ -75,7 +75,7 @@
         title: item.title,
         note: item.note || "",
         emoji: item.emoji || "🐠",
-        approved: false
+        approved: true
       })
     });
   }
@@ -107,7 +107,7 @@
         source: memory.source || "board",
         style: memory.style || "sky",
         rotate: Number(memory.rotate || 0),
-        approved: false
+        approved: true
       })
     });
   }
