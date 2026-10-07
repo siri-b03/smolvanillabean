@@ -1,6 +1,6 @@
 +++
-title = "thoughts on being back in Karlsruhe for summer"
-date = 2026-07-19
+title = "thoughts on being back in India for THE birthday"
+date = 2026-10-07
 +++
 
-the light here does this specific gold thing around 6pm. worth the humidity.
+yeah i'm not even excited about it anymore. where did THE hype-man go.

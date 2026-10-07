@@ -3,8 +3,6 @@ title = "things i did this summer (a list, mostly naps)"
 date = 2026-08-12
 +++
 
-a list, mostly naps, and I regret nothing.
-
-- read half a book on a bench
+- read a book at the brook behind home in a very performative way hoping the swan attacked me.
 - baked bread that was almost round
-- took the long way home three times on purpose
+- 1am walks back home from Rheinhafen 
