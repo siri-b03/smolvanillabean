@@ -25,7 +25,6 @@ nav = [
   { title = "photobooth", url = "/photobooth/", icon = "📷" },
   { title = "recipes", url = "/recipes/", icon = "🍞" },
   { title = "places", url = "/places/", icon = "🗺️" },
-  { title = "links", url = "/links/", icon = "🔗" },
   { title = "aquarium", url = "/guestbook/", icon = "🫧" },
   { title = "sessions", url = "/sessions/", icon = "🎙️" },
 ]

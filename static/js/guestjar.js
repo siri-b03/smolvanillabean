@@ -130,19 +130,25 @@
     aquarium.innerHTML = '';
     setLegend('Loading recommendations…');
 
-    const items = await readItems();
-    if (!items.length) {
-      setLegend(window.SiteSupabase && window.SiteSupabase.configured
-        ? 'No recommendations yet — be the first to add one.'
-        : 'No recommendations saved in this browser yet.');
-    } else {
-      setLegend(`${items.length} recommendation${items.length === 1 ? '' : 's'} in the aquarium`);
-    }
+    try {
+      const items = await readItems();
+      if (!items.length) {
+        setLegend(window.SiteSupabase && window.SiteSupabase.configured
+          ? 'No recommendations yet — be the first to add one.'
+          : 'No recommendations saved in this browser yet.');
+      } else {
+        setLegend(`${items.length} recommendation${items.length === 1 ? '' : 's'} in the aquarium`);
+      }
 
-    items.forEach((item, i) => {
-      const itemEl = makeItemElement(item, i);
-      aquarium.appendChild(itemEl);
-    });
+      items.forEach((item, i) => {
+        const itemEl = makeItemElement(item, i);
+        aquarium.appendChild(itemEl);
+        attachWander(itemEl);
+      });
+    } catch (error) {
+      console.warn('Could not render aquarium.', error);
+      setLegend('The aquarium is taking a moment to open.');
+    }
   }
 
   form.addEventListener('submit', async (event) => {
@@ -185,63 +191,55 @@
 
   function attachWander(el) {
     let stopped = false;
-    function step() {
-      if (stopped) return;
+    let frame = null;
+    let targetX = 0;
+    let targetY = 0;
+    let lastTime = 0;
+
+    function chooseTarget() {
       const contRect = aquarium.getBoundingClientRect();
-      const w = contRect.width;
-
-      const elRect = el.getBoundingClientRect();
-      const currentX = elRect.left - contRect.left;
-      const currentY = elRect.top - contRect.top;
-
       const elW = el.offsetWidth || 40;
       const elH = el.offsetHeight || 30;
       const minX = 6;
-      const maxX = Math.max(minX, Math.floor(w - elW - 6));
+      const maxX = Math.max(minX, Math.floor(contRect.width - elW - 6));
       const minY = 6;
       const maxY = Math.max(minY, Math.floor(contRect.height - elH - 6));
 
-      const nx = Math.min(maxX, Math.max(minX, Math.floor(minX + Math.random() * (maxX - minX + 1))));
-      const ny = Math.min(maxY, Math.max(minY, Math.floor(minY + Math.random() * (maxY - minY + 1))));
+      targetX = minX + Math.random() * Math.max(0, maxX - minX);
+      targetY = minY + Math.random() * Math.max(0, maxY - minY);
+    }
 
-      const dx = nx - currentX;
-      const dy = ny - currentY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const speed = 80;
-      const duration = Math.min(8, Math.max(0.9, distance / speed));
+    function move(time) {
+      if (stopped) return;
+      if (!lastTime) lastTime = time;
 
-      const emoji = el.querySelector('.aq-emoji');
-      if (emoji && Math.abs(dx) > 4) {
-        emoji.style.transform = dx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
+      const elapsed = Math.min(100, time - lastTime);
+      lastTime = time;
+      const currentX = parseFloat(el.style.left) || el.getBoundingClientRect().left - aquarium.getBoundingClientRect().left;
+      const currentY = parseFloat(el.style.top) || el.getBoundingClientRect().top - aquarium.getBoundingClientRect().top;
+      const dx = targetX - currentX;
+      const dy = targetY - currentY;
+
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+        chooseTarget();
+      } else {
+        const step = Math.min(1, elapsed / 900);
+        el.style.left = `${currentX + dx * step}px`;
+        el.style.top = `${currentY + dy * step}px`;
+        const emoji = el.querySelector('.aq-emoji');
+        if (emoji && Math.abs(dx) > 4) emoji.style.transform = dx > 0 ? 'scaleX(-1)' : 'scaleX(1)';
       }
 
-      el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
-      requestAnimationFrame(() => {
-        el.style.left = nx + 'px';
-        el.style.top = ny + 'px';
-      });
-
-      el.addEventListener('transitionend', function onEnd(event) {
-        if (event.propertyName !== 'left' && event.propertyName !== 'top') return;
-        setTimeout(step, 200 + Math.random() * 800);
-      }, { once: true });
+      frame = requestAnimationFrame(move);
     }
-    step();
-    el._stopWander = () => { stopped = true; el.style.transition = ''; };
+
+    chooseTarget();
+    frame = requestAnimationFrame(move);
+    el._stopWander = () => {
+      stopped = true;
+      if (frame) cancelAnimationFrame(frame);
+    };
   }
 
-  async function renderWanderingItems() {
-    const existing = aquarium.querySelectorAll('.aquarium-item');
-    existing.forEach((item) => { try { if (item._stopWander) item._stopWander(); } catch (error) {} });
-
-    aquarium.innerHTML = '';
-    const items = await readItems();
-    items.forEach((item, i) => {
-      const itemEl = makeItemElement(item, i);
-      aquarium.appendChild(itemEl);
-      attachWander(itemEl);
-    });
-  }
-
-  renderWanderingItems();
+  render();
 })();
